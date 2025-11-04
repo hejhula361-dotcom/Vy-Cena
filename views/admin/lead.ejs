@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – Detail poptávky #<%= lead.id %> | VyššíCena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <!-- Header -->
+  <header class="bg-white border-b">
+    <div class="mx-auto max-w-6xl px-4 py-2 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <img src="/logo.svg" alt="VyššíCena" class="h-7 w-auto shrink-0">
+      </div>
+      <nav class="flex items-center gap-2 md:gap-3 shrink-0">
+        <a href="/admin" class="text-xs md:text-sm text-slate-600 hover:text-slate-900">← Zpět</a>
+        <a href="/admin/logout" class="text-xs md:text-sm px-2 md:px-3 py-1.5 rounded-lg border hover:bg-slate-50">Odhlásit</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="mx-auto max-w-6xl px-4 py-6 md:py-8">
+    <div class="mb-4 md:mb-6 flex items-center justify-between gap-3">
+      <h1 class="text-xl md:text-2xl font-bold">Poptávka #<%= lead.id %></h1>
+      <div class="text-xs md:text-sm text-slate-500"><%= new Date(lead.created_at).toLocaleString('cs-CZ') %></div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Nemovitost -->
+      <div class="md:col-span-2 bg-white border rounded-2xl p-6">
+        <h2 class="text-lg font-semibold mb-4">Nemovitost</h2>
+        <div class="grid sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <div class="text-slate-500">Typ</div>
+            <div class="font-medium uppercase"><%= lead.type %></div>
+          </div>
+          <div>
+            <div class="text-slate-500">Dispozice / typ</div>
+            <div class="font-medium"><%= lead.layout || '—' %></div>
+          </div>
+          <div>
+            <div class="text-slate-500">Užitná plocha</div>
+            <div class="font-medium"><%= lead.area %> m²</div>
+          </div>
+          <div>
+  <div class="text-slate-500">Stav</div>
+  <div class="font-medium"><%= lead.condition || '—' %></div>
+</div>
+<div>
+  <div class="text-slate-500">Balkon / lodžie</div>
+  <div class="font-medium">
+    <% if (lead.type === 'byt' && lead.balcony) { %><%= lead.balcony %><% } else { %>neobsahuje<% } %>
+  </div>
+</div>
+          <div>
+            <div class="text-slate-500">Lokalita</div>
+            <% const mapsQuery = encodeURIComponent(`${(lead.city || '')} ${(lead.psc || '')}`.trim()); %>
+            <div class="font-medium">
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=<%= mapsQuery %>"
+                target="_blank" 
+                rel="noopener"
+                class="underline hover:no-underline text-blue-600 hover:text-blue-800"
+              >
+                <%= lead.city %>, <%= lead.psc %>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kontakt a akce -->
+      <div class="bg-white border rounded-2xl p-6">
+        <h2 class="text-lg font-semibold mb-4">Kontakt</h2>
+
+        <div class="mb-4">
+          <div class="text-slate-500 text-sm">Jméno</div>
+          <div class="font-medium"><%= lead.first_name %> <%= lead.last_name %></div>
+        </div>
+
+        <div class="mb-6 space-y-2 text-sm">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">E-mail</span>
+            <a href="mailto:<%= lead.email %>"
+               class="text-slate-800 underline hover:no-underline break-all"><%= lead.email %></a>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Telefon</span>
+            <a href="tel:<%= (lead.phone || '').replace(/\s+/g,'') %>"
+               class="text-slate-800 underline hover:no-underline"><%= lead.phone %></a>
+          </div>
+        </div>
+
+        <!-- Akční tlačítka -->
+        <div class="space-y-3">
+          <a href="tel:<%= (lead.phone || '').replace(/\s+/g,'') %>"
+             class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700">
+            📞 Zavolat
+          </a>
+          <a href="mailto:<%= lead.email %>"
+             class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border font-semibold hover:bg-slate-50">
+            ✉️ Napsat e-mail
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

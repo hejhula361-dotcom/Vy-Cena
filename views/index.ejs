@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Odhad nemovitosti | VyššíCena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="description" content="Získejte nezávazný odhad ceny Vaší nemovitosti. Rostislav Kandel, realitní makléř."/>
+  <style>
+    html { scroll-behavior: smooth; }
+    .fade-enter { opacity:0; transform: translateY(8px) scale(.98); }
+    .fade-enter-active { opacity:1; transform: translateY(0) scale(1); transition: all .25s ease; }
+    .fade-exit { opacity:1; transform: translateY(0) scale(1); }
+    .fade-exit-active { opacity:0; transform: translateY(8px) scale(.98); transition: all .2s ease; }
+    .card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
+    .card:hover { transform: translateY(-2px); }
+    .inp { width:100%; border-radius:1rem; border:1px solid rgb(203 213 225); background:rgba(248,250,252,.75); padding:.75rem 1rem; font-size:15px; outline:none;}
+    .inp:focus { background:#fff; border-color:rgb(100 116 139); box-shadow:0 0 0 6px rgba(100,116,139,.12); }
+    .square { aspect-ratio: 1/1; }
+    .btn-black { padding:.85rem 1.1rem; border-radius:1rem; background:#0f172a; color:#fff; font-weight:600; }
+    .btn-black:hover { background:#111827; }
+    .reveal { opacity:0; transform: translateY(12px); transition: all .35s ease; }
+    .reveal.in { opacity:1; transform:none; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body class="bg-slate-50">
+<header class="bg-white border-b sticky top-0 z-10">
+  <div class="mx-auto max-w-6xl px-4 py-1.5 md:py-2 flex items-center justify-between">
+    <a href="/" class="inline-flex items-center h-16">
+      <img src="/logo.svg" alt="VyššíCena" class="h-full w-auto">
+      <span class="sr-only">VyššíCena</span>
+    </a>
+    <nav class="flex items-center gap-4 md:gap-6 text-sm text-slate-600">
+      <a href="#about" class="hover:text-slate-900">O mně</a>
+      <div class="hidden md:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/60 text-slate-700 text-xs font-medium">
+        VyššíCena • Odhad nemovitosti
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="bg-gradient-to-b from-slate-100 to-slate-50">
+   <div class="mx-auto max-w-6xl px-4 py-8 md:py-12 grid md:grid-cols-2 gap-12 items-start">
+      <!-- LEVÝ sloupec -->
+      <div class="pt-2">
+        <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+          Nezávazný odhad ceny Vaší nemovitosti
+        </h1>
+        <p class="text-slate-600 mb-6">
+          V pár krocích upřesníte typ a parametry nemovitosti a nakonec necháte kontakt. Zabere to 1–2 minuty.
+        </p>
+
+        <!-- karta makléře -->
+        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow-sm border">
+            <div class="size-14 md:size-16 rounded-full overflow-hidden ring-1 ring-slate-200">
+              <img
+               src="<%= agent.photo %>"
+               alt="Rostislav Kandel"
+               class="w-full h-full object-cover"
+               loading="lazy"
+               decoding="async"
+               width="64" height="64">
+          </div>          <div>
+            <div class="font-semibold"><%= agent.name %></div>
+            <div class="text-sm text-slate-600"><%= agent.title %></div>
+            <div class="text-sm text-slate-600"><%= agent.phone %> ·
+              <a href="mailto:<%= agent.email %>" class="underline"><%= agent.email %></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRAVÝ sloupec – wizard -->
+      <div id="form" class="bg-white border rounded-2xl p-6 shadow-sm self-stretch w-full flex flex-col justify-between">
+        <!-- Progress -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs font-medium text-slate-600 mb-2">
+            <span>Krok <span id="stepNum">0</span> / 3</span>
+            <span id="stepLabel">Začít</span>
+          </div>
+          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div id="progress" class="h-2 bg-slate-900 rounded-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <form id="leadForm" method="POST" action="/lead" class="grid gap-5">
+          <input type="hidden" name="type" id="typeHidden">
+          <input type="hidden" name="layout" id="layoutHidden">
+
+          <!-- STEP 0 -->
+          <div class="step grid place-items-center md:min-h-0" data-step="0">
+            <div class="text-center max-w-sm">
+              <h2 class="text-xl font-semibold mb-2">Začněme</h2>
+              <p class="text-slate-600 text-sm mb-6">Klikněte na tlačítko a vyberte typ nemovitosti.</p>
+              <button type="button" id="startBtn" class="btn-black">Začít s odhadem</button>
+            </div>
+          </div>
+
+          <!-- STEP 1: výběr typu -->
+          <div class="step hidden" data-step="1">
+            <h2 class="text-lg font-semibold mb-4">Vyberte typ nemovitosti</h2>
+            <div class="grid grid-cols-3 gap-2 md:gap-4">
+              <!-- BYT -->
+              <button type="button" data-type="byt" class="card border rounded-2xl p-2 md:p-4 hover:shadow-sm text-center">
+                <div class="aspect-square w-full flex items-center justify-center bg-slate-50 rounded-xl border">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-10 h-10 md:w-16 md:h-16 text-slate-700">
+                    <rect x="4" y="4" width="16" height="16" rx="2" stroke-width="1.5"/>
+                    <path d="M4 12h16M12 4v16" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <div class="mt-2 md:mt-3 font-medium text-[13px] md:text-base">Byt</div>
+                <div class="text-[11px] md:text-xs text-slate-600 leading-tight">1+kk až 5+kk</div>
+              </button>
+              <!-- DŮM -->
+              <button type="button" data-type="dum" class="card border rounded-2xl p-2 md:p-4 hover:shadow-sm text-center">
+                <div class="aspect-square w-full flex items-center justify-center bg-slate-50 rounded-xl border">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-10 h-10 md:w-16 md:h-16 text-slate-700">
+                    <path d="M3 9.5L12 3l9 6.5" stroke-width="1.5"/>
+                    <path d="M5 9v10h14V9" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <div class="mt-2 md:mt-3 font-medium text-[13px] md:text-base">Dům</div>
+                <div class="text-[11px] md:text-xs text-slate-600 leading-tight">Samostatný / řadový</div>
+              </button>
+              <!-- POZEMEK -->
+              <button type="button" data-type="pozemek" class="card border rounded-2xl p-2 md:p-4 hover:shadow-sm text-center">
+                <div class="aspect-square w-full flex items-center justify-center bg-slate-50 rounded-xl border">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-10 h-10 md:w-16 md:h-16 text-slate-700">
+                    <path d="M6 14l9-4 3 4-9 4-3-4z" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <div class="mt-2 md:mt-3 font-medium text-[13px] md:text-base">Pozemek</div>
+                <div class="text-[11px] md:text-xs text-slate-600 leading-tight">Stavební / zahrada / orná</div>
+              </button>
+            </div>
+            <div class="flex gap-3 mt-4 md:mt-5 justify-end">
+              <button type="button" class="btn-black" data-next disabled>Pokračovat</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: parametry -->
+          <div class="step hidden" data-step="2">
+            <h2 class="text-lg font-semibold mb-2">Parametry a lokace</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Město</label>
+                <input name="city" id="city" required class="inp"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">PSČ</label>
+                <input name="psc" id="psc" required inputmode="numeric"
+                       pattern="^[0-9]{3}\s[0-9]{2}$" title="PSČ ve formátu 123 45"
+                       placeholder="123 45" class="inp"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Užitná plocha (m²)</label>
+                <input type="number" name="area" id="area" min="1" required class="inp"/>
+              </div>
+              <div id="layoutWrap">
+                <label class="block text-sm font-medium text-slate-700" id="layoutLabel">Dispozice</label>
+                <select id="layoutSelect" class="inp"></select>
+              </div>
+
+              <!-- NOVÉ: Balkon / lodžie (jen pro BYT) -->
+              <div id="balconyWrap" class="hidden">
+                <label class="block text-sm font-medium text-slate-700">Balkon / lodžie</label>
+                <select name="balcony" id="balcony" class="inp">
+                  <option value="">Neobsahuje</option>
+                  <option value="balkon">Balkon</option>
+                  <option value="lodžie">Lodžie</option>
+                </select>
+              </div>
+
+              <!-- NOVÉ: Stav -->
+              <div id="conditionWrap">
+                <label class="block text-sm font-medium text-slate-700">Stav</label>
+                <select name="condition" id="condition" class="inp" required>
+                <option value="neuvedeno">Neuvedeno</option>
+                <option value="novostavba">Novostavba</option>
+                <option value="velmi dobrý stav">Velmi dobrý stav</option>
+                <option value="dobrý stav">Dobrý stav</option>
+                <option value="po rekonstrukci">Po rekonstrukci</option>
+                <option value="k rekonstrukci">K rekonstrukci</option>
+                <option value="ve výstavbě">Ve výstavbě</option>
+                <option value="projekt">Projekt (zatím nepostaveno)</option>
+                <option value="zanedbaný stav">Zanedbaný / havarijní stav</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex gap-3 mt-5">
+              <button type="button" class="px-4 py-3 rounded-2xl border border-slate-300" data-prev>← Zpět</button>
+              <button type="button" class="btn-black" data-next>Pokračovat</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: kontakt -->
+          <div class="step hidden" data-step="3">
+            <h2 class="text-lg font-semibold mb-2">Kontaktní údaje</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div><label class="block text-sm font-medium text-slate-700">Jméno</label><input name="first_name" required class="inp"/></div>
+              <div><label class="block text-sm font-medium text-slate-700">Příjmení</label><input name="last_name" required class="inp"/></div>
+              <div><label class="block text-sm font-medium text-slate-700">E-mail</label><input type="email" name="email" required pattern="^.+@.+\..+$" class="inp" placeholder="např. jmeno@domena.cz"/></div>
+              <div><label class="block text-sm font-medium text-slate-700">Telefon</label><input name="phone" id="phone" required inputmode="tel" pattern="^[0-9]{3}\s[0-9]{3}\s[0-9]{3}$" title="Telefon ve formátu 123 456 789" placeholder="123 456 789" class="inp"/></div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3">Odesláním souhlasíte se zpracováním osobních údajů za účelem vypracování odhadu a následného kontaktování.</p>
+            <div class="flex gap-3 mt-5">
+              <button type="button" class="px-4 py-3 rounded-2xl border border-slate-300" data-prev>← Zpět</button>
+              <button class="btn-black">Odeslat poptávku</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITY -->
+  <section class="py-12">
+    <div class="mx-auto max-w-6xl px-4 grid md:grid-cols-3 gap-6">
+      <div class="bg-white border rounded-2xl p-6"><h3 class="font-semibold mb-2">Rychle</h3><p class="text-slate-600 text-sm">Odhad připravím co nejdříve a dám vám vědět s dalším postupem.</p></div>
+      <div class="bg-white border rounded-2xl p-6"><h3 class="font-semibold mb-2">Nezávazně</h3><p class="text-slate-600 text-sm">Žádné poplatky ani závazky – rozhodnutí je vždy na vás.</p></div>
+      <div class="bg-white border rounded-2xl p-6"><h3 class="font-semibold mb-2">Osobně</h3><p class="text-slate-600 text-sm">Komunikace napřímo s makléřem – žádné call centrum.</p></div>
+    </div>
+  </section>
+
+  <!-- O MNĚ -->
+  <section id="about" class="py-12">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="bg-white border rounded-2xl p-8 shadow-sm reveal">
+        <h2 class="text-2xl font-bold mb-3">O mně</h2>
+        <div class="text-slate-700 leading-relaxed space-y-6">
+          <p>
+            <strong>Jmenuji se Rostislav Kandel</strong> a pomáhám lidem v Karlovarském a Plzeňském kraji s prodejem, koupí i pronájmem nemovitostí.
+            Věřím, že každá spolupráce začíná důvěrou – a právě odhad nemovitosti je ideální první krok, jak se poznat a zjistit,
+            co pro vás mohu udělat.
+          </p>
+          <p><em>Rostislav Kandel</em></p>
+
+          <div>
+            <h3 class="text-xl font-semibold mb-2">Proč to dává smysl</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>Budete vědět, za kolik se vaše nemovitost dá skutečně prodat</li>
+              <li>Vyhnete se zbytečnému podhodnocení nebo přecenění</li>
+              <li>Získáte reálný přehled o trhu v dané lokalitě</li>
+              <li>Dostanete doporučení, jak hodnotu případně zvýšit</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-50 border rounded-xl p-5">
+            <h3 class="text-xl font-semibold mb-2">Zjistěte, kolik má vaše nemovitost opravdu hodnotu</h3>
+            <p class="mb-4">
+              Prodáváte byt, dům nebo pozemek? Než uděláte další krok, nechte si ode mě nezávazně a zdarma spočítat reálnou tržní cenu
+              vaší nemovitosti. Díky znalosti Karlovarského a Plzeňského kraje vám připravím odhad, který vychází z aktuální situace na trhu
+              – ne jen z průměrných čísel z internetu.
+            </p>
+            <a href="#form" class="inline-block btn-black">Začít s odhadem</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="py-8 text-center text-sm text-slate-500">© <span id="y"></span> VyššíCena</footer>
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+
+<script>
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const stepNum = document.getElementById('stepNum');
+  const stepLabel = document.getElementById('stepLabel');
+  const progress = document.getElementById('progress');
+  const labels = {0:'Začít',1:'Výběr typu',2:'Parametry a lokace',3:'Kontaktní údaje'};
+
+  const typeHidden = document.getElementById('typeHidden');
+  const layoutHidden = document.getElementById('layoutHidden');
+  const layoutLabel = document.getElementById('layoutLabel');
+  const layoutSelect = document.getElementById('layoutSelect');
+
+  // NOVÉ: balkon / stav wrappery
+  const balconyWrap = document.getElementById('balconyWrap');
+  const balconySel  = document.getElementById('balcony');
+  const conditionSel = document.getElementById('condition');
+
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) startBtn.addEventListener('click', () => {
+    showStep(1);
+    if (window.innerWidth < 768) {
+      setTimeout(() => {
+        const target = document.querySelector('[data-step="1"]');
+        const yOffset = -180;
+        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.__formAnchorY = y;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }, 300);
+    }
+  });
+
+  function mobileScrollToForm(delay = 300) {
+    if (window.innerWidth >= 768) return;
+    setTimeout(() => {
+      const fallback = document.getElementById('form')?.getBoundingClientRect().top + window.pageYOffset - 180;
+      const y = (typeof window.__formAnchorY === 'number') ? window.__formAnchorY : fallback;
+      if (typeof y === 'number') window.scrollTo({ top: y, behavior: 'smooth' });
+    }, delay);
+  }
+
+  document.querySelectorAll('[data-next]').forEach(b => b.addEventListener('click', () => {
+    if (current === 1 && !typeHidden.value) return;
+    if (current === 2) {
+      const city = document.getElementById('city').value.trim();
+      const psc = document.getElementById('psc').value.trim();
+      const area = Number(document.getElementById('area').value);
+      if (!/^[0-9]{3}\s[0-9]{2}$/.test(psc) || !city || !(area > 0)) return;
+    }
+    showStep(Math.min(3, current + 1));
+    mobileScrollToForm(350);
+  }));
+
+  document.querySelectorAll('[data-prev]').forEach(b => b.addEventListener('click', () => {
+    showStep(Math.max(0, current-1));
+  }));
+
+  let current = 0;
+  function showStep(n) {
+    steps.forEach((el) => {
+      const idx = Number(el.getAttribute('data-step'));
+      if (idx === n) {
+        el.classList.remove('hidden','fade-exit','fade-exit-active');
+        el.classList.add('fade-enter'); requestAnimationFrame(()=>el.classList.add('fade-enter-active'));
+        setTimeout(()=> el.classList.remove('fade-enter','fade-enter-active'), 250);
+      } else if (!el.classList.contains('hidden')) {
+        el.classList.add('fade-exit'); requestAnimationFrame(()=>el.classList.add('fade-exit-active'));
+        setTimeout(()=> el.classList.add('hidden'), 200);
+      }
+    });
+    current = n;
+    stepNum.textContent = n;
+    stepLabel.textContent = labels[n];
+    progress.style.width = (n/3*100)+'%';
+    saveDraft();
+  }
+
+  function setupLayoutByType(t) {
+    layoutHidden.value = '';
+    layoutSelect.innerHTML = '';
+    layoutLabel.textContent = (t === 'pozemek') ? 'Typ pozemku' : 'Dispozice';
+    let opts = [];
+    if (t === 'byt')        opts = ['1+kk','1+1','2+kk','2+1','3+kk','3+1','4+kk','4+1','5+kk+'];
+    else if (t === 'dum')  opts = ['samostatný RD','řadový RD','dvojdům','chata','chalupa'];
+    else if (t === 'pozemek') opts = ['stavební','zahrada','orná půda','ostatní'];
+    opts.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; layoutSelect.appendChild(o); });
+    layoutHidden.value = layoutSelect.value;
+    layoutSelect.onchange = () => layoutHidden.value = layoutSelect.value;
+
+    // NOVÉ: balkon/lodžie jen pro BYT
+    if (balconyWrap) {
+      if (t === 'byt') { balconyWrap.classList.remove('hidden'); }
+      else { balconyWrap.classList.add('hidden'); if (balconySel) balconySel.value = ''; }
+    }
+  }
+
+  document.querySelectorAll('[data-type]').forEach(card => {
+    card.addEventListener('click', () => {
+      const t = card.getAttribute('data-type');
+      typeHidden.value = t;
+      document.querySelectorAll('[data-type]').forEach(c => c.classList.remove('ring-2','ring-slate-400','bg-slate-50'));
+      card.classList.add('ring-2','ring-slate-400','bg-slate-50');
+      setupLayoutByType(t);
+      const nextBtn = document.querySelector('[data-step="1"] [data-next]');
+      if (nextBtn) nextBtn.disabled = false;
+      saveDraft();
+    });
+  });
+
+  const phone = document.getElementById('phone');
+  if (phone) phone.addEventListener('input', (e) => {
+    const d = e.target.value.replace(/\D/g,'').slice(0,9);
+    const parts = [d.slice(0,3), d.slice(3,6), d.slice(6,9)].filter(Boolean);
+    e.target.value = parts.join(' ');
+  });
+
+  const psc = document.getElementById('psc');
+  if (psc) psc.addEventListener('input', (e) => {
+    const d = e.target.value.replace(/\D/g,'').slice(0,5);
+    const parts = [d.slice(0,3), d.slice(3,5)].filter(Boolean);
+    e.target.value = parts.join(' ');
+  });
+
+  const form = document.getElementById('leadForm');
+  const DRAFT_KEY = 'eb_lead_draft_v5';
+  function saveDraft() {
+    const data = new FormData(form);
+    const obj = {}; data.forEach((v,k)=> obj[k]=v); obj._step = current;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(obj));
+  }
+  function loadDraft() {
+    const raw = localStorage.getItem(DRAFT_KEY); if (!raw) return;
+    try {
+      const obj = JSON.parse(raw);
+      ['city','psc','area','first_name','last_name','email','phone','balcony','condition'].forEach(k=>{
+        if (obj[k] && form.elements[k]) form.elements[k].value = obj[k];
+      });
+      if (obj.type) {
+        typeHidden.value = obj.type; setupLayoutByType(obj.type);
+        if (obj.layout) { layoutHidden.value = obj.layout; layoutSelect.value = obj.layout; }
+        const sel = document.querySelector(`[data-type="${obj.type}"]`);
+        if (sel) sel.classList.add('ring-2','ring-slate-400','bg-slate-50');
+        const step1next = document.querySelector('[data-step="1"] [data-next]');
+        if (step1next) step1next.disabled = !obj.type;
+      }
+      showStep(Math.min(3, Number(obj._step)||0));
+    } catch(_) {}
+  }
+
+  const io = new IntersectionObserver((entries)=>entries.forEach(e=>{ if (e.isIntersecting) e.target.classList.add('in'); }), { threshold: 0.2 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  showStep(0); setupLayoutByType('byt'); loadDraft();
+
+  if (window.matchMedia('(max-width: 640px)').matches) {
+    document.querySelectorAll('[data-type]').forEach(c => c.classList.add('p-5'));
+  }
+</script>
+</body>
+</html>

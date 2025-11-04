@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111111"/>
+      <stop offset="1" stop-color="#7a7a7a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- šipky vlevo, jemně se prolínají -->
+  <g transform="translate(6,6)">
+    <path d="M14 28V8l-4 4" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M22 8v20l4-4" stroke="#111111" stroke-opacity=".75" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- text -->
+  <text x="54" y="30" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" font-size="22" font-weight="700" fill="#111111">
+    VyššíCena
+  </text>
+</svg>

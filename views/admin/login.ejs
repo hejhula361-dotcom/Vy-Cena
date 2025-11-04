@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin přihlášení</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <div class="max-w-md mx-auto mt-16 bg-white border rounded-2xl p-6 shadow-sm">
+    <h1 class="text-xl font-semibold mb-4">Přihlášení</h1>
+    <% if (error) { %>
+      <div class="mb-4 text-sm text-red-600"><%= error %></div>
+    <% } %>
+    <form method="POST" action="/admin/login" class="grid gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">E-mail</label>
+        <input name="email" type="email" required class="w-full border rounded-lg p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Heslo</label>
+        <input name="password" type="password" required class="w-full border rounded-lg p-2">
+      </div>
+      <label class="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300">
+        <span>Zůstat přihlášen</span>
+      </label>
+      <button class="bg-slate-900 text-white px-5 py-2 rounded-xl">Přihlásit</button>
+    </form>
+  </div>
+</body>
+</html>
