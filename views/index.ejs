@@ -66,9 +66,15 @@
           </div>          <div>
             <div class="font-semibold"><%= agent.name %></div>
             <div class="text-sm text-slate-600"><%= agent.title %></div>
-            <div class="text-sm text-slate-600"><%= agent.phone %> ·
-              <a href="mailto:<%= agent.email %>" class="underline"><%= agent.email %></a>
-            </div>
+            <div class="text-sm text-slate-600">
+  <a href="tel:<%= agent.phone.replace(/\s+/g, '') %>" class="underline hover:text-slate-900">
+    <%= agent.phone %>
+  </a>
+  ·
+  <a href="mailto:<%= agent.email %>" class="underline hover:text-slate-900">
+    <%= agent.email %>
+  </a>
+</div>
           </div>
         </div>
       </div>
@@ -203,7 +209,7 @@
               <div><label class="block text-sm font-medium text-slate-700">Jméno</label><input name="first_name" required class="inp"/></div>
               <div><label class="block text-sm font-medium text-slate-700">Příjmení</label><input name="last_name" required class="inp"/></div>
               <div><label class="block text-sm font-medium text-slate-700">E-mail</label><input type="email" name="email" required pattern="^.+@.+\..+$" class="inp" placeholder="např. jmeno@domena.cz"/></div>
-              <div><label class="block text-sm font-medium text-slate-700">Telefon</label><input name="phone" id="phone" required inputmode="tel" pattern="^[0-9]{3}\s[0-9]{3}\s[0-9]{3}$" title="Telefon ve formátu 123 456 789" placeholder="123 456 789" class="inp"/></div>
+              <div><label class="block text-sm font-medium text-slate-700">Telefon</label><input name="phone" id="phone" required inputmode="tel" pattern="^[0-9]{3}\s[0-9]{3}\s[0-9]{3}$" title="Telefon ve formátu 123 456 789" placeholder="777 224 185" class="inp"/></div>
             </div>
             <p class="text-xs text-slate-500 mt-3">Odesláním souhlasíte se zpracováním osobních údajů za účelem vypracování odhadu a následného kontaktování.</p>
             <div class="flex gap-3 mt-5">

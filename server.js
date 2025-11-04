@@ -73,8 +73,8 @@ app.get('/', (req, res) => {
     agent: {
       name: 'Rostislav Kandel',
       title: 'Realitní makléř',
-      phone: '+420 123 456 789',
-      email: 'rostislav.kandel@example.com',
+      phone: '+420 777 224 185',
+      email: 'rkandel@mmreality.cz',
       photo: '/img/rostislav-kandel.jpg'
     }
   });
